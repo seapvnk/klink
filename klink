@@ -65,13 +65,18 @@ mkdir build
 cd $2
 for file in *
 do
-    if [[ -g "$file" ]]
+    if [[ "$file" = '@partials' ]]
     then
         continue
     fi
 
-    touch ../build/$file
-    parse_template $file > ../build/$file
+    if [[ $file = 'index.html' ]]; then
+        parse_template $file > ../build/$file
+    else
+        mkdir ../build/${file%.html}
+        touch ../build/${file%.html}/index.html
+        parse_template $file > ../build/${file%.html}/index.html
+    fi
 
 done
 cd ..
