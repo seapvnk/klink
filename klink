@@ -7,6 +7,7 @@ function build {
 
         prefix=$3
         export AP="$prefix"
+        export include="$AP/kparse"
 
         if grep -q "@" <<< "$file" 
         then
