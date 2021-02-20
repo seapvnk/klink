@@ -6,6 +6,7 @@ function parse_template {
     
     if [ -r $1 ] && [ -s $1 ] ; then
         while IFS= read line || [[ "$line" ]]; do
+
             previous=""
             bash_mode=0
 
@@ -21,7 +22,7 @@ function parse_template {
                         echo "'" >> $output
                         continue
                     else
-                        $bash_mode=1
+                        bash_mode=1
                     fi
                     
                     if (( $char == ";" )); then
@@ -60,25 +61,25 @@ function build {
     for file in *
     do
 
-        if [[ "$file" = '@partials' ]]
+        prefix=$3
+
+        if grep -q "@" <<< "$file" 
         then
             continue
 
-        elif [[ -d $file ]] && [[ '.' != $file ]] && [[ '..' != $file ]] && [[ '@partials' != $file ]]
+        elif [[ -d $file ]] && [[ '.' != $file ]] && [[ '..' != $file ]]
         then
 
             if [[ $2 = '/' ]]
             then
                 mkdir $prefix/build/$2/$file 
                 build $file $file $3/..
+                continue
             else
                 build $file $2/$file $3/..
             fi
             
         fi
-
-
-        prefix=$3
 
         if [[ $file = 'index.html' ]]; then
             if [[ $2 != '/' ]]
