@@ -1,67 +1,12 @@
 #!/bin/bash
 
-function parse_template {
-    output=$(tr -dc 'a-f0-9' < /dev/urandom | head -c32 && echo -n ".sh")
-    echo -n "echo '" > $output
-    
-    if [ -r $1 ] && [ -s $1 ] ; then
-        while IFS= read line || [[ "$line" ]]; do
-
-            previous=""
-            bash_mode=0
-
-
-            for (( i=0; i<${#line}; i++ )); do
-                char=$(echo "${line:$i:1}")
-
-                if [[ "$char" = "?" ]] && [[ "$previous" = "{" ]]; then
-                
-                    truncate -s-1 $output
-                
-                    if (( bash_mode != 1 )); then
-                        echo "'" >> $output
-                        continue
-                    else
-                        bash_mode=1
-                    fi
-                    
-                    if (( $char == ";" )); then
-                        echo "" >> $output
-                        continue
-                    fi
-
-                    echo -n "$char" >> $output
-
-                elif [[ "$char" = "}" ]] && [[ "$previous" = '?' ]]; then
-                
-                    bash_mode=0
-                    truncate -s-1 $output
-                    echo -n -e "\necho '" >> $output
-                
-                else
-                
-                    echo -n "$char" >> $output
-                
-                fi
-
-                previous=$char
-            done
-
-        done < "$1"
-    fi
-
-    echo -n "'" >> $output
-
-    bash $output
-    rm $output
-}
-
 function build {
     cd $1
     for file in *
     do
 
         prefix=$3
+        export AP="$prefix"
 
         if grep -q "@" <<< "$file" 
         then
@@ -84,9 +29,9 @@ function build {
         if [[ $file = 'index.html' ]]; then
             if [[ $2 != '/' ]]
             then
-                parse_template $file > $prefix/build/$2/$file
+                $prefix/kparse $file > $prefix/build/$2/$file
             else
-                parse_template $file > ../build/$file
+                $prefix/kparse $file > ../build/$file
             fi
         else
 
@@ -94,11 +39,11 @@ function build {
             then
                 mkdir $prefix/build/$2/${file%.html}
                 touch $prefix/build/$2/${file%.html}/index.html
-                parse_template $file > $prefix/build/$2/${file%.html}/index.html
+                $prefix/kparse $file > $prefix/build/$2/${file%.html}/index.html
             else
                 mkdir ../build/${file%.html}
                 touch ../build/${file%.html}/index.html
-                parse_template $file > ../build/${file%.html}/index.html
+                $prefix/kparse $file > ../build/${file%.html}/index.html
             fi
             
         fi

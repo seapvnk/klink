@@ -1,0 +1,59 @@
+#!/bin/bash
+
+function parse_template {
+    output=$(tr -dc 'a-f0-9' < /dev/urandom | head -c32 && echo -n ".sh")
+    echo -n "echo '" > $output
+    
+    if [ -r $1 ] && [ -s $1 ] ; then
+        while IFS= read line || [[ "$line" ]]; do
+
+            previous=""
+            bash_mode=0
+
+
+            for (( i=0; i<${#line}; i++ )); do
+                char=$(echo "${line:$i:1}")
+
+                if [[ "$char" = "?" ]] && [[ "$previous" = "{" ]]; then
+                
+                    truncate -s-1 $output
+                
+                    if (( bash_mode != 1 )); then
+                        echo "'" >> $output
+                        continue
+                    else
+                        bash_mode=1
+                    fi
+                    
+                    if (( $char == ";" )); then
+                        echo "" >> $output
+                        continue
+                    fi
+
+                    echo -n "$char" >> $output
+
+                elif [[ "$char" = "}" ]] && [[ "$previous" = '?' ]]; then
+                
+                    bash_mode=0
+                    truncate -s-1 $output
+                    echo -n -e "\necho '" >> $output
+                
+                else
+                
+                    echo -n "$char" >> $output
+                
+                fi
+
+                previous=$char
+            done
+
+        done < "$1"
+    fi
+
+    echo -n "'" >> $output
+
+    bash $output
+    rm $output
+}
+
+parse_template $1
