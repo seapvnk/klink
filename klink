@@ -55,31 +55,70 @@ function parse_template {
     rm $output
 }
 
+function build {
+    cd $1
+    for file in *
+    do
+
+        if [[ "$file" = '@partials' ]]
+        then
+            continue
+
+        elif [[ -d $file ]] && [[ '.' != $file ]] && [[ '..' != $file ]] && [[ '@partials' != $file ]]
+        then
+
+            if [[ $2 = '/' ]]
+            then
+                mkdir $prefix/build/$2/$file 
+                build $file $file $3/..
+            else
+                build $file $2/$file $3/..
+            fi
+            
+        fi
+
+
+        prefix=$3
+
+        if [[ $file = 'index.html' ]]; then
+            if [[ $2 != '/' ]]
+            then
+                parse_template $file > $prefix/build/$2/$file
+            else
+                parse_template $file > ../build/$file
+            fi
+        else
+
+            if [[ $2 != '/' ]]
+            then
+                mkdir $prefix/build/$2/${file%.html}
+                touch $prefix/build/$2/${file%.html}/index.html
+                parse_template $file > $prefix/build/$2/${file%.html}/index.html
+            else
+                mkdir ../build/${file%.html}
+                touch ../build/${file%.html}/index.html
+                parse_template $file > ../build/${file%.html}/index.html
+            fi
+            
+        fi
+
+    done
+    cd ..
+}
+
+
 if [[ -d build ]]
 then
     rm -rf build
 fi
 
 mkdir build
+build $1 '/' ..
 
-cd $2
-for file in *
-do
-    if [[ "$file" = '@partials' ]]
-    then
-        continue
-    fi
 
-    if [[ $file = 'index.html' ]]; then
-        parse_template $file > ../build/$file
-    else
-        mkdir ../build/${file%.html}
-        touch ../build/${file%.html}/index.html
-        parse_template $file > ../build/${file%.html}/index.html
-    fi
+if [[ -n $2 ]]
+then
+    
+    php -S localhost:$2 -t build
 
-done
-cd ..
-
-php -S localhost:$1 -t build
-rm -r build
+fi
