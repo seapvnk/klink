@@ -53,19 +53,22 @@ function build {
     cd ..
 }
 
+if [[ -z $1 ]]; then
+    echo -e "Klink - version 1.0" 
+    echo    "Usage: ./klink <dir> <port>"
+    echo -e "\tdir: directory to be parsed"
+    echo -e "\tport: (optional) port to be served"
+    exit
+fi
 
-if [[ -d build ]]
-then
+
+if [[ -d build ]]; then
     rm -rf build
 fi
 
 mkdir build
 build $1 '/' ..
 
-
-if [[ -n $2 ]]
-then
-    
+if [[ -n $2 ]]; then
     php -S localhost:$2 -t build
-
 fi
