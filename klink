@@ -9,8 +9,6 @@ function usage
         Usage: ./klink <dir> <param>=<value>
         \t-s or --server receiving a port as args to serve a preview in given port\n
         "
-
-    exit
 }
 
 # build ($folder, $dashes, $dots)
@@ -67,7 +65,7 @@ function build
 # make validations in order to build a directory
 function make_build
 {
-    if [[ -z $1 ]]; then usage; fi
+    if [[ -z $1 ]] | [[ $# -ne 2 ]]; then usage && exit; fi
     if [[ -d build ]]; then rm -rf build; fi
     
     mkdir build && build $1 '/' ..
@@ -83,8 +81,8 @@ function serve
 }
 
 # script start
-
 make_build $1
+
 while [ "$2" != "" ]; do
     
     PARAM=`echo $2 | awk -F= '{print $1}'`
