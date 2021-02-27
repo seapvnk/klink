@@ -1,43 +1,40 @@
 #!/bin/bash
 
-function build {
+# build ($folder, $dashes, $dots)
+# iterate over all files recursively parsing the files depending on it's name
+function build
+{
     cd $1
-    for file in *
-    do
+    for file in *; do
 
         prefix=$3
-        export AP="$prefix"
-        export include="$AP/kparse"
+        export AP="$prefix" include="$AP/kparse"
 
-        if grep -q "@" <<< "$file" 
-        then
-            continue
+        if grep -q "@" <<< "$file"; then continue
 
-        elif [[ -d $file ]] && [[ '.' != $file ]] && [[ '..' != $file ]]
-        then
-
-            if [[ $2 = '/' ]]
-            then
+        elif [[ -d $file ]] && [[ '.' != $file ]] && [[ '..' != $file ]]; then
+            
+            if [[ $2 = '/' ]]; then
                 mkdir $prefix/build/$2/$file 
                 build $file $file $3/..
                 continue
             else
                 build $file $2/$file $3/..
             fi
-            
+
         fi
 
         if [[ $file = 'index.html' ]]; then
-            if [[ $2 != '/' ]]
-            then
+            
+            if [[ $2 != '/' ]]; then
                 $prefix/kparse $file > $prefix/build/$2/$file
             else
                 $prefix/kparse $file > ../build/$file
             fi
+
         else
 
-            if [[ $2 != '/' ]]
-            then
+            if [[ $2 != '/' ]]; then
                 mkdir $prefix/build/$2/${file%.html}
                 touch $prefix/build/$2/${file%.html}/index.html
                 $prefix/kparse $file > $prefix/build/$2/${file%.html}/index.html
@@ -54,21 +51,16 @@ function build {
 }
 
 if [[ -z $1 ]]; then
-    echo -e "Klink - version 1.0" 
-    echo    "Usage: ./klink <dir> <port>"
-    echo -e "\tdir: directory to be parsed"
-    echo -e "\tport: (optional) port to be served"
+    echo -e "\
+        Klink - version 1.0\
+        Usage: ./klink <dir> <port>\
+        \tdir: directory to be parsed\
+        \tport: (optional) port to be served"
     exit
 fi
 
+if [[ -d build ]]; then rm -rf build; fi
 
-if [[ -d build ]]; then
-    rm -rf build
-fi
+mkdir build && build $1 '/' ..
 
-mkdir build
-build $1 '/' ..
-
-if [[ -n $2 ]]; then
-    php -S localhost:$2 -t build
-fi
+if [[ -n $2 ]]; then php -S localhost:$2 -t build; fi
