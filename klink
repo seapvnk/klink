@@ -1,5 +1,18 @@
 #!/bin/bash
 
+# usage()
+# show command-line usage
+function usage
+{
+    echo -e "\
+        Klink -- version 1.0
+        Usage: ./klink <dir> <param>=<value>
+        \t-s or --server receiving a port as args to serve a preview in given port\n
+        "
+
+    exit
+}
+
 # build ($folder, $dashes, $dots)
 # iterate over all files recursively parsing the files depending on it's name
 function build
@@ -50,17 +63,43 @@ function build
     cd ..
 }
 
-if [[ -z $1 ]]; then
-    echo -e "\
-        Klink - version 1.0\
-        Usage: ./klink <dir> <port>\
-        \tdir: directory to be parsed\
-        \tport: (optional) port to be served"
-    exit
-fi
+# make_build($dir)
+# make validations in order to build a directory
+function make_build
+{
+    if [[ -z $1 ]]; then usage; fi
+    if [[ -d build ]]; then rm -rf build; fi
+    
+    mkdir build && build $1 '/' ..
+}
 
-if [[ -d build ]]; then rm -rf build; fi
+# serve($port)
+# create a http server to static site
+function serve
+{
+    cd build
+    python -m http.server $1
+    cd ..
+}
 
-mkdir build && build $1 '/' ..
+# script start
 
-if [[ -n $2 ]]; then php -S localhost:$2 -t build; fi
+make_build $1
+while [ "$2" != "" ]; do
+    
+    PARAM=`echo $2 | awk -F= '{print $1}'`
+    VALUE=`echo $2 | awk -F= '{print $2}'`
+
+    case $PARAM in
+        --serve | -s)
+            if [[ -z $VALUE ]]; then VALUE=80; fi
+            serve $VALUE
+            ;;
+        *)
+            echo "ERROR: unknown parameter \"$PARAM\""
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
