@@ -23,7 +23,7 @@ function build
     for file in *; do
 
         prefix=$3
-        export AP="$prefix" include="./kparse"
+        export AP="$prefix" include="$ROOT/kparse"
 
         if grep -q "@" <<< "$file"; then continue
 
