@@ -65,7 +65,7 @@ function build
 # make validations in order to build a directory
 function make_build
 {
-    if [[ -z $1 ]] | [[ $# -ne 2 ]]; then usage && exit; fi
+    if [[ -z $1 ]]; then usage && exit; fi
     if [[ -d build ]]; then rm -rf build; fi
     
     mkdir build && build $1 '/' ..
@@ -75,6 +75,7 @@ function make_build
 # create a http server to static site
 function serve
 {
+    
     cd build
     python -m http.server $1
     cd ..
