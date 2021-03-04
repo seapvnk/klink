@@ -26,6 +26,11 @@ function build
         export AP="$prefix" include="$ROOT/kparse"
 
         if grep -q "@" <<< "$file"; then continue
+        
+        elif cat $PASTE_FILE | grep $file; then
+            
+            cp -R $file  $prefix/build/$file
+            continue
 
         elif [[ -d $file ]] && [[ '.' != $file ]] && [[ '..' != $file ]]; then
             
@@ -47,18 +52,6 @@ function build
                 $prefix/kparse $file > ../build/$file
             fi
 
-        elif cat $PASTE_FILE | grep $file; then
-       
-            if [[ $2 != '/' ]]; then
-                mkdir $prefix/build/$2/${file%.html}
-                touch $prefix/build/$2/${file%.html}/index.html
-                cat $file > $prefix/build/$2/${file%.html}/index.html
-            else
-                mkdir ../build/${file%.html}
-                touch ../build/${file%.html}/index.html
-                cat $file > ../build/${file%.html}/index.html
-            fi
-        
         else
 
             if [[ $2 != '/' ]]; then
@@ -94,11 +87,13 @@ function make_paste_file
         rm .pastefile
     fi
 
-    touch .pastefile 
+    touch .pastefile
 
     while read p; do
-        ls -R $1/$p >> .pastefile
+        echo $p >> .pastefile
+        if [[ -d $p ]]; then ls -R $p >> .pastefile; fi 
     done < .paste
+
 }
 
 # serve($port)
@@ -112,7 +107,7 @@ function serve
 }
 
 # script start
-make_paste_file $1
+make_paste_file
 make_build $1
 
 rm .pastefile
