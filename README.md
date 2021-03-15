@@ -3,11 +3,7 @@
  # klink
 
  A static site generator made in shell script
-
-
-
-
-<!-- TABLE OF CONTENTS -->
+ 
 <details open="open">
   <summary>Table of Contents</summary>
   <ol>
@@ -31,19 +27,9 @@
 </details>
 
 
-
-<!-- ABOUT THE PROJECT -->
 ## About The Project
 Klink is an experimental static site generator made in shell for small projects. The syntax is just html with block of codes where you can write bash.
 
-
-### Built With
-
-This section should list any major frameworks that you built your project using. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
-* bash script
-
-
-<!-- GETTING STARTED -->
 ## Getting Started
 
 This is an example of how you may give instructions on setting up your project locally.
@@ -65,8 +51,7 @@ You just need your OS and terminal
    ```sh
    rm -rf .git README.md LICENSE
    ```
-
-<!-- USAGE EXAMPLES -->
+   
 ## Usage
 The usage is simple, if you have some experience in templates engine you'll be fine.
 ```html
@@ -92,7 +77,6 @@ so you can use anything you want. The output of commands written between the "ea
 </code>
 ```
 
-<!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
