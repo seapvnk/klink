@@ -32,9 +32,6 @@ Klink is an experimental static site generator made in shell for small projects.
 
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
 ### Prerequisites
 You just need your OS and terminal
 
